@@ -1,4 +1,4 @@
-# English → Sanskrit Neural Machine Translator
+# English → Sanskrit Machine Translator
 
 A Transformer-based sequence-to-sequence model trained on the **Saamayik** parallel corpus.
 
@@ -78,22 +78,3 @@ python inference.py --input my_sentences.txt --output translations.txt
 ```
 
 ---
-
-## Bugs Fixed in `model.py`
-
-| Location | Bug | Fix |
-|----------|-----|-----|
-| `PositionalEncoding.forward` | `.requires_grad(False)` called on tensor — invalid syntax | Changed to `.detach()` |
-| `MultiHeadAttention.forward` | Query reshape used `query.shape[1]` as batch dim (wrong) | Changed to `query.shape[0]` (batch) and `-1` for seq dim |
-| `MultiHeadAttention.attention` | Called as instance method `self.attention(...)` instead of static | Changed to `MultiHeadAttention.attention(...)` with explicit `@staticmethod` decorator |
-| `ProjectionLayer.forward` | Applied `log_softmax` before `CrossEntropyLoss` (double-applies softmax) | Return raw logits; `CrossEntropyLoss` handles softmax internally |
-| `build_transformer` defaults | d_model=512, d_ff=2048, layers=6 is very large for a ~43 k sentence dataset | Reduced defaults to d_model=256, d_ff=1024, layers=4 to prevent overfitting |
-
----
-
-## Tips for Better Results
-
-- **More data**: Consider adding the Bible and Gitasopanam sub-corpora from the zip.
-- **BPE tokenisation**: Replace the word-level tokenizer with `sentencepiece` (BPE) for better handling of rare Sanskrit words.
-- **Longer training**: Try 50–100 epochs with early stopping.
-- **Larger model**: On a GPU, you can restore d_model=512, num_layers=6.
